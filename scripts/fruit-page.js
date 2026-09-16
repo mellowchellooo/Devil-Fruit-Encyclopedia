@@ -1,13 +1,31 @@
+function getTypeLabel(fruit, category) {
+  if (category === 'Zoan' && fruit.subtype) return fruit.subtype;
+  return category;
+}
+
 function initPage(fruits, category) {
   const grid = document.getElementById('fruit-grid');
   const search = document.getElementById('search');
   const countEl = document.getElementById('fruit-count');
+  const filterBtns = document.querySelectorAll('.filter-btn');
 
-  let filtered = fruits;
+  let activeFilter = 'all';
+  let shown = fruits;
 
-  function getTypeLabel(fruit) {
-    if (category === 'Zoan' && fruit.subtype) return fruit.subtype;
-    return category;
+  function matchesFilter(f) {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'awakened') return f.awakened;
+    if (activeFilter === 'artificial') return f.artificial;
+    return f.subtype === activeFilter;
+  }
+
+  function matchesSearch(f, q) {
+    return f.name.toLowerCase().includes(q) ||
+      f.englishName.toLowerCase().includes(q) ||
+      f.ability.toLowerCase().includes(q) ||
+      f.currentOwner.toLowerCase().includes(q) ||
+      (f.previousOwners || []).some(o => o.toLowerCase().includes(q)) ||
+      f.arc.toLowerCase().includes(q);
   }
 
   function renderGrid(list) {
@@ -15,13 +33,16 @@ function initPage(fruits, category) {
       grid.innerHTML = '<div class="empty-state">No fruits found.</div>';
       return;
     }
-    grid.innerHTML = list.map(f => {
-      const typeLabel = getTypeLabel(f);
+    grid.innerHTML = list.map((f, i) => {
+      const typeLabel = getTypeLabel(f, category);
       return `
-        <div class="fruit-card" onclick="openModal(${JSON.stringify(f).replace(/"/g, '&quot;')}, '${category}')">
+        <div class="fruit-card" data-index="${i}">
           <div class="fruit-card-top">
             <span class="fruit-card-type fruit-card-type--${typeLabel}">${typeLabel}</span>
-            ${f.awakened ? '<span class="fruit-card-awakened">Awakened</span>' : ''}
+            <span class="fruit-card-badges">
+              ${f.artificial ? '<span class="fruit-card-artificial">Artificial</span>' : ''}
+              ${f.awakened ? '<span class="fruit-card-awakened">Awakened</span>' : ''}
+            </span>
           </div>
           <div class="fruit-card-name">${f.name}</div>
           <div class="fruit-card-english">${f.englishName}</div>
@@ -35,29 +56,36 @@ function initPage(fruits, category) {
     }).join('');
   }
 
-  function applySearch() {
+  function update() {
     const q = search.value.toLowerCase().trim();
-    if (!q) { filtered = fruits; }
-    else {
-      filtered = fruits.filter(f =>
-        f.name.toLowerCase().includes(q) ||
-        f.englishName.toLowerCase().includes(q) ||
-        f.ability.toLowerCase().includes(q) ||
-        f.currentOwner.toLowerCase().includes(q) ||
-        (f.previousOwners || []).some(o => o.toLowerCase().includes(q)) ||
-        f.arc.toLowerCase().includes(q)
-      );
-    }
-    countEl.textContent = filtered.length + ' of ' + fruits.length + ' fruits';
-    renderGrid(filtered);
+    shown = fruits.filter(f => matchesFilter(f) && (!q || matchesSearch(f, q)));
+    countEl.textContent = (activeFilter === 'all' && !q)
+      ? fruits.length + ' fruits documented'
+      : shown.length + ' of ' + fruits.length + ' fruits';
+    renderGrid(shown);
   }
 
-  search.addEventListener('input', applySearch);
+  search.addEventListener('input', update);
 
-  countEl.textContent = fruits.length + ' fruits documented';
-  renderGrid(fruits);
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      update();
+    });
+  });
 
-  // Modal
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fruit-card');
+    if (card) openModal(shown[card.dataset.index], category);
+  });
+
+  initModal();
+  update();
+}
+
+function initModal() {
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-close').onclick = closeModal;
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
@@ -65,9 +93,10 @@ function initPage(fruits, category) {
 }
 
 function openModal(fruit, category) {
-  const typeLabel = (category === 'Zoan' && fruit.subtype) ? fruit.subtype : category;
+  const typeLabel = getTypeLabel(fruit, category);
   const bar = document.getElementById('modal-type-bar');
   bar.innerHTML = `<span class="modal-type-tag modal-type-tag--${typeLabel}">${typeLabel}</span>`;
+  if (fruit.artificial) bar.innerHTML += `<span class="modal-type-tag modal-type-tag--artificial">Artificial</span>`;
   if (fruit.awakened) bar.innerHTML += `<span class="modal-type-tag modal-type-tag--awakened">Awakened</span>`;
 
   document.getElementById('modal-name').textContent = fruit.name;

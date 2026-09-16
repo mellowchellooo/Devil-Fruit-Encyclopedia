@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paramecia Fruits — Devil Fruit Encyclopedia</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <style>
+    .hero-cat {
+      position: relative; z-index: 1;
+      background: var(--ink); padding: 48px 80px;
+      border-bottom: 6px solid var(--paramecia);
+      overflow: hidden;
+    }
+    .hero-cat::before {
+      content: 'PARAMECIA';
+      position: absolute; right: -20px; top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-display);
+      font-size: 120px; color: rgba(26,58,143,0.08);
+      letter-spacing: 4px; pointer-events: none;
+    }
+    .hero-cat-label {
+      font-family: var(--font-head); font-size: 11px; font-weight: 700;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--paramecia); margin-bottom: 10px; display: block;
+    }
+    .hero-cat-title {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 8vw, 96px);
+      color: var(--paper); letter-spacing: 4px;
+      line-height: 1; margin-bottom: 16px;
+    }
+    .hero-cat-desc {
+      font-size: 14px; color: #aaa; max-width: 560px; line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-devil">☠</span><span class="nav-logo-text"> Devil Fruit Encyclopedia</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="logia.html">Logia</a></li>
+    <li><a href="zoan.html">Zoan</a></li>
+    <li><a href="paramecia.html" class="active">Paramecia</a></li>
+  </ul>
+</nav>
+
+<div class="hero-cat">
+  <span class="hero-cat-label">Devil Fruit Type</span>
+  <h1 class="hero-cat-title">Paramecia</h1>
+  <p class="hero-cat-desc">The most common Devil Fruit type — a diverse catch-all class. Paramecia powers range from body alterations and object manipulation to space-warping abilities. Awakened Paramecia can affect the surrounding environment itself.</p>
+</div>
+
+<div class="sec-head">
+  <span class="sec-label" id="fruit-count"></span>
+  <h2 class="sec-title">All Paramecia Fruits</h2>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-label">Show:</span>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="awakened">Awakened Only</button>
+</div>
+
+<div class="search-bar">
+  <input class="search-input" id="search" type="text" placeholder="Search fruits, owners, abilities...">
+</div>
+
+<div class="fruit-grid" id="fruit-grid"></div>
+
+<footer class="footer">
+  <div class="footer-logo"><span>☠</span> Devil Fruit Encyclopedia</div>
+  <div class="footer-copy">Fan reference — not affiliated with Eiichiro Oda or Shueisha</div>
+  <div class="footer-note">Data sourced from One Piece manga canon</div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-type-bar" id="modal-type-bar"></div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-english" id="modal-english"></div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <span class="modal-section-label">Ability</span>
+        <p class="modal-section-text" id="modal-ability"></p>
+      </div>
+      <div class="modal-section">
+        <span class="modal-section-label">Reveal</span>
+        <div class="modal-meta-grid">
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Chapter</span>
+            <span class="modal-meta-value" id="modal-chapter"></span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Arc</span>
+            <span class="modal-meta-value" id="modal-arc"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <span class="modal-section-label">Known Users</span>
+        <ul class="owners-list" id="modal-owners"></ul>
+      </div>
+      <div class="modal-section" id="modal-awakening-section" style="display:none;">
+        <span class="modal-section-label">Awakening</span>
+        <div class="awakening-box"><p id="modal-awakening-text"></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="scripts/data.js"></script>
+<script src="scripts/fruit-page.js"></script>
+<script>initPage(devilFruits.paramecia, 'Paramecia');</script>
+</body>
+</html>

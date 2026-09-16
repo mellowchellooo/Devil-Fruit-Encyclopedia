@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Devil Fruit Encyclopedia</title>
   <link rel="stylesheet" href="styles/style.css">
-  <base href="index.html">
 </head>
 <body>
 
-  <nav>
-    <a href="index.html"><span class="nav-logo-devil">☠</span><span class="nav-logo-text">Devil Fruit Encyclopedia</span></a>
-    <ul>
+  <nav class="nav">
+    <a href="index.html" class="nav-logo"><span class="nav-logo-devil">☠</span><span class="nav-logo-text"> Devil Fruit Encyclopedia</span></a>
+    <ul class="nav-links">
       <li><a href="index.html" class="active">Home</a></li>
       <li><a href="logia.html">Logia</a></li>
       <li><a href="zoan.html">Zoan</a></li>
@@ -20,9 +19,9 @@
   </nav>
 
   <!--Hero Box-->
-  <section>
+  <section class="hero">
     <div class="hero-panel-lines"></div>
-    <div class="hero-inner"></div>
+    <div class="hero-inner">
       <div>
         <div class="hero-tag">Complete Canon Reference</div>
         <h1 class="hero-title">Devil Fruit<span>Encyclopedia</span></h1>
@@ -34,6 +33,7 @@
         <p>Central to the world are <strong>Devil Fruits</strong> — mysterious fruits found across the oceans. Each grants a unique supernatural power to whoever eats it. The price: the eater loses their ability to swim forever. There are three known types — <strong style="color:var(--logia)">Logia</strong>, <strong style="color:var(--zoan)">Zoan</strong>, and <strong style="color:var(--paramecia)">Paramecia</strong> — and no two fruits share the same power.</p>
         <p>This encyclopedia documents every named Devil Fruit confirmed in the manga — including their abilities, known users, the chapter they were first revealed, and any known awakening details.</p>
       </div>
+    </div>
   </section>
   
   <!--Fruit Type Buttons-->
@@ -120,6 +120,7 @@
 </div>
 
 <script src="scripts/data.js"></script>
+<script src="scripts/fruit-page.js"></script>
 <script>
   // Populate counts
   document.getElementById('logia-count').textContent = devilFruits.logia.length + ' Fruits';
@@ -135,68 +136,32 @@
     ...devilFruits.paramecia.map(f => ({ ...f, category: 'Paramecia' }))
   ];
 
-  const recent = allFruits.filter(f => f.recent);
-
+  let recent = allFruits.filter(f => f.recent);
   if (recent.length === 0) {
     // Fall back to highest chapter numbers
-    const sorted = [...allFruits].sort((a, b) => b.chapter - a.chapter).slice(0, 6);
-    renderRecent(sorted);
-  } else {
-    renderRecent(recent);
+    recent = [...allFruits].sort((a, b) => (b.chapter || 0) - (a.chapter || 0)).slice(0, 6);
   }
 
-  function renderRecent(fruits) {
-    recentGrid.innerHTML = fruits.map(f => `
-      <div class="recent-card" onclick="openModal(${JSON.stringify(f).replace(/"/g, '&quot;')})">
-        <span class="recent-card-type recent-card-type--${f.category}">${f.subtype || f.category}</span>
+  recentGrid.innerHTML = recent.map((f, i) => {
+    const typeLabel = getTypeLabel(f, f.category);
+    return `
+      <div class="recent-card" data-index="${i}">
+        <span class="recent-card-type recent-card-type--${typeLabel}">${typeLabel}</span>
+        ${f.artificial ? '<span class="recent-card-type recent-card-type--artificial">Artificial</span>' : ''}
         <div class="recent-card-name">${f.name}</div>
         <div class="recent-card-english">${f.englishName}</div>
         <div class="recent-card-owner">Current: <strong>${f.currentOwner}</strong></div>
         <div class="recent-card-arc">Ch. ${f.chapter || '?'} · ${f.arc}</div>
       </div>
-    `).join('');
-  }
+    `;
+  }).join('');
 
-  // Modal
-  const overlay = document.getElementById('modal-overlay');
-  document.getElementById('modal-close').onclick = closeModal;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  recentGrid.addEventListener('click', e => {
+    const card = e.target.closest('.recent-card');
+    if (card) openModal(recent[card.dataset.index], recent[card.dataset.index].category);
+  });
 
-  function openModal(fruit) {
-    const typeTag = fruit.subtype || fruit.category;
-    const bar = document.getElementById('modal-type-bar');
-    bar.innerHTML = `<span class="modal-type-tag modal-type-tag--${typeTag}">${typeTag}</span>`;
-    if (fruit.awakened) bar.innerHTML += `<span class="modal-type-tag modal-type-tag--awakened">Awakened</span>`;
-
-    document.getElementById('modal-name').textContent = fruit.name;
-    document.getElementById('modal-english').textContent = fruit.englishName;
-    document.getElementById('modal-ability').textContent = fruit.ability;
-    document.getElementById('modal-chapter').textContent = fruit.chapter ? 'Ch. ' + fruit.chapter : 'Unknown';
-    document.getElementById('modal-arc').textContent = fruit.arc;
-
-    const owners = document.getElementById('modal-owners');
-    const allOwners = [...(fruit.previousOwners || []), fruit.currentOwner];
-    owners.innerHTML = (fruit.previousOwners || []).map(o =>
-      `<li>${o} <span style="color:#aaa;font-size:11px;">(former)</span></li>`
-    ).join('') + `<li class="current">${fruit.currentOwner}</li>`;
-
-    const awakSection = document.getElementById('modal-awakening-section');
-    if (fruit.awakened && fruit.awakeningAbility) {
-      awakSection.style.display = 'block';
-      document.getElementById('modal-awakening-text').textContent = fruit.awakeningAbility;
-    } else {
-      awakSection.style.display = 'none';
-    }
-
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModal() {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+  initModal();
 </script>
 
 </body>

@@ -23,7 +23,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: url('images/bg.jpg') center center / cover fixed, #1a2a3a;
+  background: url('../images/bg.jpg') center center / cover fixed, #1a2a3a;
   color: var(--ink);
   font-family: var(--font-body);
   overflow-x: hidden;
@@ -276,6 +276,10 @@ body::before {
 .recent-card-type--Logia    { background: var(--logia); }
 .recent-card-type--Zoan     { background: var(--zoan); }
 .recent-card-type--Paramecia{ background: var(--paramecia); }
+.recent-card-type--Regular  { background: var(--zoan); }
+.recent-card-type--Ancient  { background: #7a4f00; }
+.recent-card-type--Mythical { background: #5a0a6e; }
+.recent-card-type--artificial { background: #6b7280; margin-left: 6px; }
 
 .recent-card-name {
   font-family: var(--font-display);
@@ -331,9 +335,18 @@ body::before {
 .fruit-card-type--Logia     { background: var(--logia); }
 .fruit-card-type--Zoan      { background: var(--zoan); }
 .fruit-card-type--Paramecia { background: var(--paramecia); }
+.fruit-card-type--Regular   { background: var(--zoan); }
 .fruit-card-type--Ancient   { background: #7a4f00; }
 .fruit-card-type--Mythical  { background: #5a0a6e; }
 
+.fruit-card-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.fruit-card-artificial {
+  font-family: var(--font-head);
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 10px; color: var(--white);
+  background: #6b7280;
+}
 .fruit-card-awakened {
   font-family: var(--font-head);
   font-size: 9px; font-weight: 700;
@@ -384,7 +397,7 @@ body::before {
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
 }
-.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
 
 .modal {
   background: var(--paper);
@@ -416,8 +429,10 @@ body::before {
 .modal-type-tag--Logia     { background: var(--logia); }
 .modal-type-tag--Zoan      { background: var(--zoan); }
 .modal-type-tag--Paramecia { background: var(--paramecia); }
+.modal-type-tag--Regular   { background: var(--zoan); }
 .modal-type-tag--Ancient   { background: #7a4f00; }
 .modal-type-tag--Mythical  { background: #5a0a6e; }
+.modal-type-tag--artificial { background: #6b7280; }
 .modal-type-tag--awakened  { background: var(--ink-mid); border: 1px solid #555; }
 
 .modal-name {
