@@ -36,5 +36,168 @@
       </div>
   </section>
   
+  <!--Fruit Type Buttons-->
+<div class="sec-head">
+  <span class="sec-label">Choose a Category</span>
+  <h2 class="sec-title">Browse by Fruit Type</h2>
+</div>
+<div class="type-buttons">
+  <a href="logia.html" class="type-btn type-btn--logia">
+    <img class="type-btn-img" src="images/merameranomi.png" alt="Mera Mera no Mi">
+    <span class="type-btn-name">Logia</span>
+    <span class="type-btn-count" id="logia-count">— Fruits</span>
+    <p class="type-btn-desc">Logia fruits grant the ability to transform into, create, and control a natural element. The rarest and most powerful class — users are intangible in their element.</p>
+    <span class="type-btn-arrow">→</span>
+  </a>
+  <a href="zoan.html" class="type-btn type-btn--zoan">
+    <img class="type-btn-img" src="images/hitohitonominika.webp" alt="Hito Hito no Mi, Model: Nika">
+    <span class="type-btn-name">Zoan</span>
+    <span class="type-btn-count" id="zoan-count">— Fruits</span>
+    <p class="type-btn-desc">Zoan fruits allow the user to transform into an animal species — or a hybrid. Includes Ancient and Mythical subtypes with powers far beyond ordinary beasts.</p>
+    <span class="type-btn-arrow">→</span>
+  </a>
+  <a href="paramecia.html" class="type-btn type-btn--paramecia">
+    <img class="type-btn-img" src="images/opeopenomi.webp" alt="Ope Ope no Mi">
+    <span class="type-btn-name">Paramecia</span>
+    <span class="type-btn-count" id="paramecia-count">— Fruits</span>
+    <p class="type-btn-desc">Paramecia is the most common type — a catch-all for any fruit that doesn't fit Logia or Zoan. Powers range from body alterations to reality-bending abilities.</p>
+    <span class="type-btn-arrow">→</span>
+  </a>
+</div>
+
+<!--Newest Fruits Section-->
+<div class="sec-head" style="margin-top:16px;">
+  <span class="sec-label">Latest Additions</span>
+  <h2 class="sec-title">Newest Fruits Revealed</h2>
+</div>
+<div class="recent-section">
+  <div class="recent-grid" id="recent-grid"></div>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><span>☠</span> Devil Fruit Encyclopedia</div>
+  <div class="footer-copy">Fan reference — not affiliated with Eiichiro Oda or Shueisha</div>
+  <div class="footer-note">Data sourced from One Piece manga canon</div>
+</footer>
+
+<!--Modal-->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-type-bar" id="modal-type-bar"></div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-english" id="modal-english"></div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <span class="modal-section-label">Ability</span>
+        <p class="modal-section-text" id="modal-ability"></p>
+      </div>
+      <div class="modal-section">
+        <span class="modal-section-label">Reveal</span>
+        <div class="modal-meta-grid">
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Chapter</span>
+            <span class="modal-meta-value" id="modal-chapter"></span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Arc</span>
+            <span class="modal-meta-value" id="modal-arc"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-section" id="modal-owners-section">
+        <span class="modal-section-label">Known Users</span>
+        <ul class="owners-list" id="modal-owners"></ul>
+      </div>
+      <div class="modal-section" id="modal-awakening-section" style="display:none;">
+        <span class="modal-section-label">Awakening</span>
+        <div class="awakening-box"><p id="modal-awakening-text"></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="scripts/data.js"></script>
+<script>
+  // Populate counts
+  document.getElementById('logia-count').textContent = devilFruits.logia.length + ' Fruits';
+  document.getElementById('zoan-count').textContent = devilFruits.zoan.length + ' Fruits';
+  document.getElementById('paramecia-count').textContent = devilFruits.paramecia.length + ' Fruits';
+
+  // Build recent grid
+  const recentGrid = document.getElementById('recent-grid');
+
+  const allFruits = [
+    ...devilFruits.logia.map(f => ({ ...f, category: 'Logia' })),
+    ...devilFruits.zoan.map(f => ({ ...f, category: 'Zoan' })),
+    ...devilFruits.paramecia.map(f => ({ ...f, category: 'Paramecia' }))
+  ];
+
+  const recent = allFruits.filter(f => f.recent);
+
+  if (recent.length === 0) {
+    // Fall back to highest chapter numbers
+    const sorted = [...allFruits].sort((a, b) => b.chapter - a.chapter).slice(0, 6);
+    renderRecent(sorted);
+  } else {
+    renderRecent(recent);
+  }
+
+  function renderRecent(fruits) {
+    recentGrid.innerHTML = fruits.map(f => `
+      <div class="recent-card" onclick="openModal(${JSON.stringify(f).replace(/"/g, '&quot;')})">
+        <span class="recent-card-type recent-card-type--${f.category}">${f.subtype || f.category}</span>
+        <div class="recent-card-name">${f.name}</div>
+        <div class="recent-card-english">${f.englishName}</div>
+        <div class="recent-card-owner">Current: <strong>${f.currentOwner}</strong></div>
+        <div class="recent-card-arc">Ch. ${f.chapter || '?'} · ${f.arc}</div>
+      </div>
+    `).join('');
+  }
+
+  // Modal
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-close').onclick = closeModal;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  function openModal(fruit) {
+    const typeTag = fruit.subtype || fruit.category;
+    const bar = document.getElementById('modal-type-bar');
+    bar.innerHTML = `<span class="modal-type-tag modal-type-tag--${typeTag}">${typeTag}</span>`;
+    if (fruit.awakened) bar.innerHTML += `<span class="modal-type-tag modal-type-tag--awakened">Awakened</span>`;
+
+    document.getElementById('modal-name').textContent = fruit.name;
+    document.getElementById('modal-english').textContent = fruit.englishName;
+    document.getElementById('modal-ability').textContent = fruit.ability;
+    document.getElementById('modal-chapter').textContent = fruit.chapter ? 'Ch. ' + fruit.chapter : 'Unknown';
+    document.getElementById('modal-arc').textContent = fruit.arc;
+
+    const owners = document.getElementById('modal-owners');
+    const allOwners = [...(fruit.previousOwners || []), fruit.currentOwner];
+    owners.innerHTML = (fruit.previousOwners || []).map(o =>
+      `<li>${o} <span style="color:#aaa;font-size:11px;">(former)</span></li>`
+    ).join('') + `<li class="current">${fruit.currentOwner}</li>`;
+
+    const awakSection = document.getElementById('modal-awakening-section');
+    if (fruit.awakened && fruit.awakeningAbility) {
+      awakSection.style.display = 'block';
+      document.getElementById('modal-awakening-text').textContent = fruit.awakeningAbility;
+    } else {
+      awakSection.style.display = 'none';
+    }
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+</script>
+
 </body>
 </html>
